@@ -1,0 +1,37 @@
+[workspace]
+members = [
+    "nuro",
+    "crates/nuro-core",
+    "crates/nuro-runtime",
+    "crates/nuro-llm",
+    "crates/nuro-tools",
+    "crates/nuro-graph",
+    "crates/nuro-memory",
+    "crates/nuro-rag",
+    "crates/nuro-mcp",
+    "crates/nuro-a2a",
+    "crates/nuro-macros",
+    "crates/nuro-server",
+    "examples/simple_chatbot",
+    "examples/graph_demo",
+    "examples/http_server",
+    "examples/mcp_demo",
+    "examples/a2a_demo",
+]
+resolver = "2"
+
+[workspace.dependencies]
+anyhow = "1"
+async-trait = "0.1"
+meval = "0.2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+thiserror = "1"
+tokio = { version = "1", features = ["full"] }
+tokio-stream = "0.1"
+axum = { version = "0.7", features = ["json"] }
+tower = "0.4"
+http = "1"
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
+tracing = "0.1"
+tracing-subscriber = "0.3"

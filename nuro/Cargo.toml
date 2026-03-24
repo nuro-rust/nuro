@@ -1,0 +1,21 @@
+[package]
+name = "nuro"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+nuro-core = { path = "../crates/nuro-core" }
+nuro-runtime = { path = "../crates/nuro-runtime" }
+nuro-llm = { path = "../crates/nuro-llm" }
+nuro-tools = { path = "../crates/nuro-tools" }
+nuro-graph = { path = "../crates/nuro-graph" }
+nuro-memory = { path = "../crates/nuro-memory" }
+nuro-rag = { path = "../crates/nuro-rag" }
+nuro-mcp = { path = "../crates/nuro-mcp" }
+nuro-a2a = { path = "../crates/nuro-a2a" }
+nuro-server = { path = "../crates/nuro-server" }
+nuro-macros = { path = "../crates/nuro-macros" }
+
+[features]
+default = []
+openai = ["nuro-llm/openai"]

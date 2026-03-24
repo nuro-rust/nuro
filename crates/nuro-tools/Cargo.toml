@@ -1,0 +1,11 @@
+[package]
+name = "nuro-tools"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+async-trait = { workspace = true }
+meval = { workspace = true }
+serde_json = { workspace = true }
+
+nuro-core = { path = "../nuro-core" }
