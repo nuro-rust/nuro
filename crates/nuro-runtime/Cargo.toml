@@ -2,6 +2,10 @@
 name = "nuro-runtime"
 version = "0.1.0"
 edition = "2024"
+description = "Agent execution runtime for the Nuro AI agent SDK."
+license = "Apache-2.0"
+repository = "https://github.com/nuro-rust/nuro"
+readme = "../../README.md"
 
 [dependencies]
 async-trait = { workspace = true }
@@ -9,5 +13,5 @@ serde_json = { workspace = true }
 tokio = { workspace = true }
 tokio-stream = { workspace = true }
 
-nuro-core = { path = "../nuro-core" }
-nuro-tools = { path = "../nuro-tools" }
+nuro-core = { version = "0.1.0", path = "../nuro-core" }
+nuro-tools = { version = "0.1.0", path = "../nuro-tools" }

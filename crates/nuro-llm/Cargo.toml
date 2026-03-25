@@ -2,6 +2,10 @@
 name = "nuro-llm"
 version = "0.1.0"
 edition = "2024"
+description = "LLM provider abstractions and implementations for Nuro."
+license = "Apache-2.0"
+repository = "https://github.com/nuro-rust/nuro"
+readme = "../../README.md"
 
 [features]
 default = []
@@ -13,4 +17,4 @@ serde_json = { workspace = true }
 serde = { workspace = true, optional = true }
 reqwest = { workspace = true, optional = true }
 
-nuro-core = { path = "../nuro-core" }
+nuro-core = { version = "0.1.0", path = "../nuro-core" }

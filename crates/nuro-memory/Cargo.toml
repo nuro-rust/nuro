@@ -2,10 +2,14 @@
 name = "nuro-memory"
 version = "0.1.0"
 edition = "2024"
+description = "Conversation memory and storage for Nuro."
+license = "Apache-2.0"
+repository = "https://github.com/nuro-rust/nuro"
+readme = "../../README.md"
 
 [dependencies]
 async-trait = { workspace = true }
 serde = { workspace = true }
 serde_json = { workspace = true }
 
-nuro-core = { path = "../nuro-core" }
+nuro-core = { version = "0.1.0", path = "../nuro-core" }

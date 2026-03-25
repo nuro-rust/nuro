@@ -2,6 +2,10 @@
 name = "nuro-server"
 version = "0.1.0"
 edition = "2024"
+description = "HTTP server utilities for Nuro."
+license = "Apache-2.0"
+repository = "https://github.com/nuro-rust/nuro"
+readme = "../../README.md"
 
 [dependencies]
 anyhow = { workspace = true }
@@ -12,7 +16,7 @@ tokio = { workspace = true }
 tokio-stream = { workspace = true }
 tracing = { workspace = true }
 
-nuro-core = { path = "../nuro-core" }
-nuro-runtime = { path = "../nuro-runtime" }
-nuro-llm = { path = "../nuro-llm" }
-nuro-tools = { path = "../nuro-tools" }
+nuro-core = { version = "0.1.0", path = "../nuro-core" }
+nuro-runtime = { version = "0.1.0", path = "../nuro-runtime" }
+nuro-llm = { version = "0.1.0", path = "../nuro-llm" }
+nuro-tools = { version = "0.1.0", path = "../nuro-tools" }
