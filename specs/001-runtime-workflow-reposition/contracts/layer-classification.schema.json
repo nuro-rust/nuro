@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://nuro.dev/contracts/layer-classification.schema.json",
+  "title": "Layer Classification Contract",
+  "description": "Contract for assigning one primary framework layer to each module.",
+  "type": "object",
+  "required": [
+    "module_name",
+    "module_path",
+    "primary_layer",
+    "responsibilities",
+    "collaborates_with_layers",
+    "compatibility_classification"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "module_name": {
+      "type": "string",
+      "minLength": 1
+    },
+    "module_path": {
+      "type": "string",
+      "minLength": 1
+    },
+    "primary_layer": {
+      "type": "string",
+      "enum": [
+        "core",
+        "capability",
+        "runtime",
+        "platform"
+      ]
+    },
+    "responsibilities": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "collaborates_with_layers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "enum": [
+          "core",
+          "capability",
+          "runtime",
+          "platform"
+        ]
+      }
+    },
+    "public_surface_notes": {
+      "type": "string"
+    },
+    "compatibility_classification": {
+      "type": "string",
+      "enum": [
+        "non_breaking",
+        "deprecation_compatible",
+        "breaking"
+      ]
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "primary_layer": {
+            "const": "core"
+          }
+        },
+        "required": [
+          "primary_layer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "collaborates_with_layers": {
+            "not": {
+              "contains": {
+                "const": "core"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "primary_layer": {
+            "const": "capability"
+          }
+        },
+        "required": [
+          "primary_layer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "collaborates_with_layers": {
+            "not": {
+              "contains": {
+                "const": "capability"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "primary_layer": {
+            "const": "runtime"
+          }
+        },
+        "required": [
+          "primary_layer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "collaborates_with_layers": {
+            "not": {
+              "contains": {
+                "const": "runtime"
+              }
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "primary_layer": {
+            "const": "platform"
+          }
+        },
+        "required": [
+          "primary_layer"
+        ]
+      },
+      "then": {
+        "properties": {
+          "collaborates_with_layers": {
+            "not": {
+              "contains": {
+                "const": "platform"
+              }
+            }
+          }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+[
+  {
+    "persona": "new_user",
+    "start_layer": "core",
+    "target_layer": "capability",
+    "steps": [
+      "Understand framework positioning",
+      "Run hello-level examples",
+      "Add tool and model capabilities"
+    ],
+    "linked_examples": ["simple_chatbot", "graph_demo"],
+    "success_check": "User selects a valid starting layer and runs one mapped example."
+  },
+  {
+    "persona": "sdk_integrator",
+    "start_layer": "capability",
+    "target_layer": "runtime",
+    "steps": [
+      "Integrate provider and tool abstractions",
+      "Adopt runtime session and execution policies",
+      "Validate lifecycle and compatibility classification"
+    ],
+    "linked_examples": ["http_server", "mcp_demo"],
+    "success_check": "Integrator can deploy capability-driven runtime flow with explicit ownership boundaries."
+  },
+  {
+    "persona": "platform_operator",
+    "start_layer": "runtime",
+    "target_layer": "platform",
+    "steps": [
+      "Enable server and protocol integrations",
+      "Enable tracing and operational checks",
+      "Run release checklist and compatibility review"
+    ],
+    "linked_examples": ["http_server", "a2a_demo"],
+    "success_check": "Operator can expose runtime safely with platform-level observability and integration."
+  },
+  {
+    "persona": "contributor",
+    "start_layer": "core",
+    "target_layer": "platform",
+    "steps": [
+      "Choose one owning layer",
+      "Declare compatibility class",
+      "Submit proposal with tests and docs plans"
+    ],
+    "linked_examples": ["graph_demo", "mcp_demo", "a2a_demo"],
+    "success_check": "Proposal passes schema validation and review checklist without missing ownership fields."
+  }
+]

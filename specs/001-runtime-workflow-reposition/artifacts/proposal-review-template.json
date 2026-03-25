@@ -1,0 +1,22 @@
+{
+  "proposal_id": "prop-001",
+  "feature_title": "Layer-aware enhancement example",
+  "owned_layer": "capability",
+  "scope_boundary": "Adds optional planner capability without changing core contracts",
+  "api_impact": "Non-breaking API extension",
+  "compatibility_classification": "non_breaking",
+  "requires_migration_guide": false,
+  "test_plan": [
+    "Add unit tests for planner behavior",
+    "Add integration tests for runtime collaboration"
+  ],
+  "doc_plan": [
+    "Update capability docs",
+    "Update example index"
+  ],
+  "acceptance_criteria": [
+    "One owning layer is declared",
+    "Compatibility class is explicit",
+    "Tests and docs plan are complete"
+  ]
+}

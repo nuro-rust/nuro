@@ -2,6 +2,12 @@
 
 本文档介绍如何启用 `nuro` SDK 的高级功能，特别是如何接入真实的 OpenAI LLM Provider，并提供一个最小的可用示例。
 
+> 分层导航：
+> - 四层模型：`docs/architecture/layer-model.md`
+> - 模块映射：`docs/architecture/module-layer-mapping.md`
+> - 分层上手：`docs/quickstart-layered.md`
+> - 示例索引：`docs/examples/layer-index.md`
+
 ## 1. 启用 `openai` Feature
 
 Nuro SDK 默认不开启任何需要网络或外部依赖的重型 feature，以保证 `cargo build` 默认通过且依赖集最小。

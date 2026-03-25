@@ -1,8 +1,20 @@
 ![Nuro logo](nuro.jpeg)
 
-# Nuro - A Rust-Native AI Agent SDK
+# Nuro - Rust Native Agent Runtime & Workflow Framework
 
-Nuro 是一个面向 Rust 开发者的 AI Agent SDK，强调事件驱动与图编排优先的执行模型，兼顾性能、安全与可组合性。它适合从命令行 Agent 到多 Agent 系统的研发与落地。
+Nuro 是一个面向 Rust 生态的 Agent Runtime 与 Workflow Framework，强调事件驱动、图编排、强类型与性能优先。它适合从单 Agent 到多 Agent 系统的研发与生产落地。
+
+## 四层架构定位
+
+- **Core Layer**: `core / runtime / graph / events`，保持最小、稳定、强类型
+- **Capability Layer**: `llm / tools / memory / rag / planner / policy`，提供开箱即用能力
+- **Runtime Layer**: `checkpoint / scheduler / executor / session / human-in-loop`，面向生产级任务执行
+- **Platform Layer**: `server / tracing / dashboard / playground / devtools`，支持调试、运维与集成
+
+详细说明见：
+
+- `docs/architecture/layer-model.md`
+- `docs/architecture/module-layer-mapping.md`
 
 ## 你能用 Nuro 做什么
 
@@ -21,6 +33,15 @@ git clone https://github.com/nuro-rust/nuro.git
 cd nuro
 cargo build
 ```
+
+### Layer-First 入门路径
+
+1. **从 Core/Capability 开始**：先运行 `simple_chatbot` 与 `graph_demo`
+2. **进入 Runtime 能力**：验证 `http_server` 场景
+3. **进入 Platform 集成**：运行 `mcp_demo` 与 `a2a_demo`
+
+按层指南：`docs/quickstart-layered.md`  
+示例索引：`docs/examples/layer-index.md`
 
 ### 运行示例
 
@@ -178,6 +199,10 @@ async fn main() -> Result<()> {
 ## 文档
 
 - 架构设计文档：`docs/Nuro_—_Rust_Agent_SDK_技术架构设计文档.lark.md`
+- 四层架构模型：`docs/architecture/layer-model.md`
+- 模块分层映射：`docs/architecture/module-layer-mapping.md`
+- 分层快速开始：`docs/quickstart-layered.md`
+- 示例分层索引：`docs/examples/layer-index.md`
 - 进阶用法与 OpenAI：`docs/QUICKSTART-ADVANCED.md`
 
 ## OpenAI 支持

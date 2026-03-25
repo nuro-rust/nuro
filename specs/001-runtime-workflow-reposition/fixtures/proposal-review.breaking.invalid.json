@@ -1,0 +1,18 @@
+{
+  "proposal_id": "prop-invalid-001",
+  "feature_title": "Breaking rename without migration",
+  "owned_layer": "core",
+  "scope_boundary": "Renames a core public trait",
+  "api_impact": "Breaking rename",
+  "compatibility_classification": "breaking",
+  "requires_migration_guide": false,
+  "test_plan": [
+    "Update tests for renamed trait"
+  ],
+  "doc_plan": [
+    "Update API docs"
+  ],
+  "acceptance_criteria": [
+    "Breaking changes are declared"
+  ]
+}
