@@ -2,6 +2,10 @@
 name = "nuro-core"
 version = "0.1.0"
 edition = "2024"
+description = "Core types and traits for the Nuro AI agent SDK."
+license = "Apache-2.0"
+repository = "https://github.com/nuro-rust/nuro"
+readme = "../../README.md"
 
 [dependencies]
 async-trait = { workspace = true }

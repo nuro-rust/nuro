@@ -1,0 +1,22 @@
+{
+  "proposal_id": "prop-valid-001",
+  "feature_title": "Runtime checkpoint metadata enrichment",
+  "owned_layer": "runtime",
+  "scope_boundary": "Enhances checkpoint metadata fields without changing existing behavior",
+  "api_impact": "Adds optional metadata fields",
+  "compatibility_classification": "non_breaking",
+  "requires_migration_guide": false,
+  "test_plan": [
+    "Add unit tests for metadata serialization",
+    "Add integration tests for checkpoint lifecycle"
+  ],
+  "doc_plan": [
+    "Update runtime docs",
+    "Update migration notes as no-code migration"
+  ],
+  "acceptance_criteria": [
+    "No breaking API behavior",
+    "Proposal metadata complete",
+    "Validation script passes"
+  ]
+}

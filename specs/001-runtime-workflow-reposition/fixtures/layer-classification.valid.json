@@ -1,0 +1,12 @@
+{
+  "module_name": "nuro-runtime",
+  "module_path": "crates/nuro-runtime",
+  "primary_layer": "runtime",
+  "responsibilities": [
+    "Agent loop lifecycle orchestration",
+    "Execution context propagation"
+  ],
+  "collaborates_with_layers": ["core", "capability", "platform"],
+  "public_surface_notes": "Runtime owns execution semantics and collaborates with capability providers.",
+  "compatibility_classification": "non_breaking"
+}

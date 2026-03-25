@@ -1,0 +1,134 @@
+[
+  {
+    "module_name": "nuro-core",
+    "module_path": "crates/nuro-core",
+    "primary_layer": "core",
+    "responsibilities": [
+      "Define foundational traits and shared domain types",
+      "Provide stable type contracts"
+    ],
+    "collaborates_with_layers": ["capability", "runtime", "platform"],
+    "public_surface_notes": "Core contracts remain minimal and stable.",
+    "compatibility_classification": "non_breaking"
+  },
+  {
+    "module_name": "nuro-graph",
+    "module_path": "crates/nuro-graph",
+    "primary_layer": "core",
+    "responsibilities": [
+      "Workflow graph composition",
+      "Type-safe execution topology"
+    ],
+    "collaborates_with_layers": ["runtime", "capability"],
+    "public_surface_notes": "Graph model is a core orchestration primitive.",
+    "compatibility_classification": "non_breaking"
+  },
+  {
+    "module_name": "nuro-runtime",
+    "module_path": "crates/nuro-runtime",
+    "primary_layer": "runtime",
+    "responsibilities": [
+      "Execution loop orchestration",
+      "Runtime context and lifecycle handling"
+    ],
+    "collaborates_with_layers": ["core", "capability", "platform"],
+    "public_surface_notes": "Runtime controls execution semantics and boundaries.",
+    "compatibility_classification": "non_breaking"
+  },
+  {
+    "module_name": "nuro-llm",
+    "module_path": "crates/nuro-llm",
+    "primary_layer": "capability",
+    "responsibilities": [
+      "Provider abstractions",
+      "Model request/response capabilities"
+    ],
+    "collaborates_with_layers": ["core", "runtime", "platform"],
+    "public_surface_notes": "Provider capabilities remain pluggable.",
+    "compatibility_classification": "non_breaking"
+  },
+  {
+    "module_name": "nuro-tools",
+    "module_path": "crates/nuro-tools",
+    "primary_layer": "capability",
+    "responsibilities": [
+      "Tool trait and toolbox",
+      "Tool invocation capability"
+    ],
+    "collaborates_with_layers": ["core", "runtime"],
+    "public_surface_notes": "Tools are capability-level building blocks.",
+    "compatibility_classification": "non_breaking"
+  },
+  {
+    "module_name": "nuro-memory",
+    "module_path": "crates/nuro-memory",
+    "primary_layer": "capability",
+    "responsibilities": [
+      "Conversation and long-term memory capabilities",
+      "Memory abstraction points"
+    ],
+    "collaborates_with_layers": ["runtime", "platform"],
+    "public_surface_notes": "Memory remains decoupled from runtime orchestration internals.",
+    "compatibility_classification": "non_breaking"
+  },
+  {
+    "module_name": "nuro-rag",
+    "module_path": "crates/nuro-rag",
+    "primary_layer": "capability",
+    "responsibilities": [
+      "Retrieval-augmented generation helpers",
+      "Context enrichment capability"
+    ],
+    "collaborates_with_layers": ["runtime", "platform"],
+    "public_surface_notes": "RAG is optional capability layer enrichment.",
+    "compatibility_classification": "non_breaking"
+  },
+  {
+    "module_name": "nuro-server",
+    "module_path": "crates/nuro-server",
+    "primary_layer": "platform",
+    "responsibilities": [
+      "Transport/server integration",
+      "External runtime exposure"
+    ],
+    "collaborates_with_layers": ["runtime", "capability"],
+    "public_surface_notes": "Server belongs to platform-facing integration.",
+    "compatibility_classification": "non_breaking"
+  },
+  {
+    "module_name": "nuro-mcp",
+    "module_path": "crates/nuro-mcp",
+    "primary_layer": "platform",
+    "responsibilities": [
+      "MCP protocol integration",
+      "External tool and resource interoperability"
+    ],
+    "collaborates_with_layers": ["runtime", "capability"],
+    "public_surface_notes": "Protocol bridge for external ecosystem integration.",
+    "compatibility_classification": "non_breaking"
+  },
+  {
+    "module_name": "nuro-a2a",
+    "module_path": "crates/nuro-a2a",
+    "primary_layer": "platform",
+    "responsibilities": [
+      "A2A protocol support",
+      "Multi-agent interoperability"
+    ],
+    "collaborates_with_layers": ["runtime", "capability"],
+    "public_surface_notes": "Inter-agent communication capability at platform boundary.",
+    "compatibility_classification": "non_breaking"
+  },
+  {
+    "module_name": "nuro",
+    "module_path": "nuro",
+    "primary_layer": "platform",
+    "responsibilities": [
+      "Unified public entrypoint",
+      "Cross-layer developer-facing composition"
+    ],
+    "collaborates_with_layers": ["core", "capability", "runtime"],
+    "public_surface_notes": "Top-level crate is the framework integration surface.",
+    "compatibility_classification": "non_breaking"
+  }
+]

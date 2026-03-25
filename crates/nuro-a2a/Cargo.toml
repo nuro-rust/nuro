@@ -2,6 +2,10 @@
 name = "nuro-a2a"
 version = "0.1.0"
 edition = "2024"
+description = "A2A protocol implementation for Nuro."
+license = "Apache-2.0"
+repository = "https://github.com/nuro-rust/nuro"
+readme = "../../README.md"
 
 [dependencies]
 anyhow = { workspace = true }
@@ -12,4 +16,4 @@ tokio = { workspace = true }
 tokio-stream = { workspace = true }
 reqwest = { workspace = true }
 
-nuro-core = { path = "../nuro-core" }
+nuro-core = { version = "0.1.0", path = "../nuro-core" }
