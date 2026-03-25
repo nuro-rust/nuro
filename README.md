@@ -1,3 +1,18 @@
+<p align="center">
+  <img src=".nuro.jpeg" alt="Nuro - Rust-Native AI Agent Framework" width="100%">
+</p>
+
+<p align="center">
+  <strong>High-performance, type-safe AI Agent framework built in pure Rust</strong>
+</p>
+
+<p align="center">
+  <a href="#features">Features</a> •
+  <a href="#quick-start">Quick Start</a> •
+  <a href="#examples">Examples</a> •
+  <a href="#architecture">Architecture</a> •
+  <a href="./LICENSE">License</a>
+</p>
 ![Nuro logo](nuro.jpeg)
 
 # Nuro - Rust Native Agent Runtime & Workflow Framework
