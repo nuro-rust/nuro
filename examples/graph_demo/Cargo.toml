@@ -6,4 +6,5 @@ edition = "2024"
 [dependencies]
 anyhow = { workspace = true }
 nuro = { path = "../../nuro" }
+serde = { workspace = true }
 tokio = { workspace = true }

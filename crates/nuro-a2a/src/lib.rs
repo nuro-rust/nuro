@@ -8,10 +8,10 @@
 //!
 //! 目标是对外暴露 API 形状，为后续真实协议实现铺路。
 
-mod types;
-mod server;
 mod client;
+mod server;
+mod types;
 
-pub use types::AgentCard;
-pub use server::{A2aServer, A2aServerBuilder};
 pub use client::A2aClient;
+pub use server::{A2aServer, A2aServerBuilder};
+pub use types::AgentCard;

@@ -1,10 +1,12 @@
 use std::sync::Arc;
 
 use anyhow::Result;
-use nuro_core::{tool::ToolContext, Tool};
-use serde_json::{json, Value};
-use tokio::io::{self, AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter};
-use tokio::time::{timeout, Duration};
+use nuro_core::{Tool, tool::ToolContext};
+use serde_json::{Value, json};
+use tokio::io::{
+    self, AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt, BufReader, BufWriter,
+};
+use tokio::time::{Duration, timeout};
 
 use crate::rpc::{RpcError, RpcRequest, RpcResponse};
 
@@ -20,7 +22,7 @@ use crate::rpc::{RpcError, RpcRequest, RpcResponse};
 pub struct McpServer {
     name: String,
     version: String,
-    tools: Vec<Arc<dyn Tool>>,    
+    tools: Vec<Arc<dyn Tool>>,
 }
 
 impl McpServer {
@@ -95,7 +97,7 @@ impl McpServer {
 pub struct McpServerBuilder {
     pub(crate) name: String,
     pub(crate) version: String,
-    pub(crate) tools: Vec<Arc<dyn Tool>>,    
+    pub(crate) tools: Vec<Arc<dyn Tool>>,
 }
 
 impl McpServerBuilder {

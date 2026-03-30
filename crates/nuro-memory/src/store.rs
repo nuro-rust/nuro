@@ -2,7 +2,7 @@ use std::collections::HashMap;
 use std::sync::Mutex;
 
 use async_trait::async_trait;
-use nuro_core::{message::Message, Result};
+use nuro_core::{Result, message::Message};
 
 /// 抽象的记忆存储接口。
 ///
@@ -23,11 +23,7 @@ pub trait MemoryStore: Send + Sync {
     async fn get_conversation(&self, conversation_id: &str) -> Result<Vec<Message>>;
 
     /// 覆盖保存整个会话的消息列表。
-    async fn save_conversation(
-        &self,
-        conversation_id: &str,
-        messages: &[Message],
-    ) -> Result<()>;
+    async fn save_conversation(&self, conversation_id: &str, messages: &[Message]) -> Result<()>;
 }
 
 /// 纯内存版的实现：
@@ -89,11 +85,7 @@ impl MemoryStore for InMemoryMemoryStore {
         Ok(guard.get(conversation_id).cloned().unwrap_or_default())
     }
 
-    async fn save_conversation(
-        &self,
-        conversation_id: &str,
-        messages: &[Message],
-    ) -> Result<()> {
+    async fn save_conversation(&self, conversation_id: &str, messages: &[Message]) -> Result<()> {
         let mut guard = self.inner.lock().unwrap();
         guard.insert(conversation_id.to_string(), messages.to_vec());
         Ok(())

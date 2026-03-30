@@ -101,10 +101,8 @@ impl VectorStore for InMemoryVectorStore {
             return Ok(results);
         }
 
-        let query_tokens: HashSet<String> = query
-            .split_whitespace()
-            .map(|s| s.to_lowercase())
-            .collect();
+        let query_tokens: HashSet<String> =
+            query.split_whitespace().map(|s| s.to_lowercase()).collect();
 
         for entry in guard.values() {
             let text = entry
@@ -118,13 +116,10 @@ impl VectorStore for InMemoryVectorStore {
                 continue;
             }
 
-            let doc_tokens: HashSet<String> = text
-                .split_whitespace()
-                .map(|s| s.to_lowercase())
-                .collect();
+            let doc_tokens: HashSet<String> =
+                text.split_whitespace().map(|s| s.to_lowercase()).collect();
 
-            let intersection: HashSet<&String> =
-                query_tokens.intersection(&doc_tokens).collect();
+            let intersection: HashSet<&String> = query_tokens.intersection(&doc_tokens).collect();
             if intersection.is_empty() {
                 continue;
             }
@@ -139,7 +134,11 @@ impl VectorStore for InMemoryVectorStore {
             });
         }
 
-        results.sort_by(|a, b| b.score.partial_cmp(&a.score).unwrap_or(std::cmp::Ordering::Equal));
+        results.sort_by(|a, b| {
+            b.score
+                .partial_cmp(&a.score)
+                .unwrap_or(std::cmp::Ordering::Equal)
+        });
         if results.len() > limit {
             results.truncate(limit);
         }

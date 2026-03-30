@@ -1,7 +1,7 @@
-use anyhow::{anyhow, Result};
-use serde_json::{json, Value};
+use anyhow::{Result, anyhow};
+use serde_json::{Value, json};
 use tokio::io::{AsyncBufRead, AsyncBufReadExt, AsyncWrite, AsyncWriteExt};
-use tokio::time::{timeout, Duration};
+use tokio::time::{Duration, timeout};
 
 use crate::rpc::{RpcRequest, RpcResponse};
 
@@ -96,7 +96,8 @@ impl McpClient {
         if resp.id != id {
             return Err(anyhow!(
                 "mismatched response id: expected {}, got {}",
-                id, resp.id
+                id,
+                resp.id
             ));
         }
 

@@ -15,8 +15,7 @@ async fn main() -> Result<()> {
     // 初始化 tracing 日志（打印到 stdout）。
     tracing_subscriber::fmt::init();
 
-    let addr_str = std::env::var("NURO_HTTP_ADDR")
-        .unwrap_or_else(|_| "127.0.0.1:3000".to_string());
+    let addr_str = std::env::var("NURO_HTTP_ADDR").unwrap_or_else(|_| "127.0.0.1:3000".to_string());
     let addr: SocketAddr = addr_str.parse()?;
 
     println!("Starting nuro HTTP server on http://{}", addr);

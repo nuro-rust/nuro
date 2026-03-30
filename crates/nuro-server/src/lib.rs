@@ -16,11 +16,14 @@ use std::net::SocketAddr;
 
 use anyhow::Result;
 use axum::{
+    Json, Router,
     extract::State,
     http::StatusCode,
-    response::{sse::{Event as SseEvent, Sse}, IntoResponse},
+    response::{
+        IntoResponse,
+        sse::{Event as SseEvent, Sse},
+    },
     routing::{get, post},
-    Json, Router,
 };
 use nuro_core::{AgentContext, AgentInput};
 use nuro_llm::MockLlmProvider;
@@ -91,10 +94,7 @@ async fn chat_handler(
     Json(req): Json<ChatRequest>,
 ) -> Result<Json<ChatResponse>, (StatusCode, Json<ErrorResponse>)> {
     let mut ctx = AgentContext::new();
-    let result = state
-        .agent
-        .run(AgentInput::Text(req.input), &mut ctx)
-        .await;
+    let result = state.agent.run(AgentInput::Text(req.input), &mut ctx).await;
 
     match result {
         Ok(output) => {
@@ -118,10 +118,8 @@ async fn chat_stream_handler(
     Json(req): Json<ChatRequest>,
 ) -> impl IntoResponse {
     let ctx = AgentContext::new();
-    let event_stream = state
-        .agent
-        .stream(AgentInput::Text(req.input), ctx)
-        .map(|item| -> Result<SseEvent, Infallible> {
+    let event_stream = state.agent.stream(AgentInput::Text(req.input), ctx).map(
+        |item| -> Result<SseEvent, Infallible> {
             match item {
                 Ok(event) => {
                     let data = serde_json::to_string(&event).unwrap_or_else(|_| "{}".to_string());
@@ -132,7 +130,8 @@ async fn chat_stream_handler(
                     Ok(SseEvent::default().data(data))
                 }
             }
-        });
+        },
+    );
 
     Sse::new(event_stream)
 }

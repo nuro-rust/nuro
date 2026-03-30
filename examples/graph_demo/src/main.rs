@@ -2,6 +2,7 @@ use std::collections::HashMap;
 
 use anyhow::Result;
 use nuro::prelude::*;
+use serde::{Deserialize, Serialize};
 
 /// 一个极简的 StateGraph 示例：
 ///
@@ -18,7 +19,7 @@ use nuro::prelude::*;
 /// # 走 right 分支
 /// cargo run -p graph_demo -- right
 /// ```
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize, Deserialize)]
 struct DemoState {
     text: String,
     next: String,
@@ -43,9 +44,9 @@ impl GraphStateTrait for DemoState {
 #[tokio::main]
 async fn main() -> Result<()> {
     // 从命令行参数决定走哪个分支，默认为 left。
-    let initial_next = std::env::args()
-        .nth(1)
-        .unwrap_or_else(|| "left".to_string());
+    let mut args = std::env::args().skip(1);
+    let initial_next = args.next().unwrap_or_else(|| "left".to_string());
+    let resume_from = args.next();
 
     // 构建图：4 个节点 + 一条条件边。
     let graph = StateGraph::<DemoState>::new()
@@ -89,14 +90,19 @@ async fn main() -> Result<()> {
         .add_edge("left", "end")
         .add_edge("right", "end")
         .set_finish_point("end")
-        .compile()?;
+        .compile()?
+        .with_checkpointer(SqliteCheckpointer::new("graph_demo.checkpoints.db")?);
 
     let initial_state = DemoState {
         text: "graph_demo".to_string(),
         next: initial_next,
     };
 
-    let result = graph.invoke(initial_state).await?;
+    let result = if let Some(node_id) = resume_from {
+        graph.resume(&node_id).await?
+    } else {
+        graph.invoke(initial_state).await?
+    };
     println!("Final state: {:?}", result);
 
     Ok(())

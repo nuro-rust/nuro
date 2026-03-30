@@ -12,11 +12,13 @@ members = [
     "crates/nuro-a2a",
     "crates/nuro-macros",
     "crates/nuro-server",
+    "crates/nuro-adk",
     "examples/simple_chatbot",
     "examples/graph_demo",
     "examples/http_server",
     "examples/mcp_demo",
     "examples/a2a_demo",
+    "examples/adk_starter",
 ]
 resolver = "2"
 
@@ -35,3 +37,4 @@ http = "1"
 reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls"] }
 tracing = "0.1"
 tracing-subscriber = "0.3"
+rusqlite = { version = "0.32", features = ["bundled"] }

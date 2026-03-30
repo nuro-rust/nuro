@@ -14,8 +14,8 @@
 use async_trait::async_trait;
 #[cfg(feature = "openai")]
 use nuro_core::{
-    message::{ContentBlock, Message, Role},
     LlmProvider, LlmRequest, LlmResponse, NuroError, Result,
+    message::{ContentBlock, Message, Role},
 };
 
 #[cfg(feature = "openai")]

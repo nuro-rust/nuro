@@ -5,10 +5,13 @@ use std::sync::{Arc, Mutex};
 
 use anyhow::Result;
 use axum::{
-    extract::{Path, State},
-    response::{sse::{Event as SseEvent, Sse}, IntoResponse},
-    routing::{get, post},
     Json, Router,
+    extract::{Path, State},
+    response::{
+        IntoResponse,
+        sse::{Event as SseEvent, Sse},
+    },
+    routing::{get, post},
 };
 use nuro_core::{Agent, AgentContext, AgentInput};
 
@@ -33,7 +36,7 @@ pub struct A2aServer {
 }
 
 pub struct A2aServerBuilder {
-    agent: Option<Arc<dyn Agent>>,    
+    agent: Option<Arc<dyn Agent>>,
     name: String,
     description: String,
     version: String,
@@ -166,9 +169,11 @@ async fn task_stream_handler(
         None => vec![format!("task '{}' not found", id)],
     };
 
-    let stream = tokio_stream::iter(chunks.into_iter().map(|chunk| {
-        Ok(SseEvent::default().data(chunk)) as Result<SseEvent, Infallible>
-    }));
+    let stream = tokio_stream::iter(
+        chunks
+            .into_iter()
+            .map(|chunk| Ok(SseEvent::default().data(chunk)) as Result<SseEvent, Infallible>),
+    );
 
     Sse::new(stream)
 }

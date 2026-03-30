@@ -1,0 +1,18 @@
+[package]
+name = "nuro-adk"
+version = "0.1.0"
+edition = "2024"
+description = "Application development kit helpers for Nuro workflows."
+license = "Apache-2.0"
+repository = "https://github.com/nuro-rust/nuro"
+readme = "../../README.md"
+
+[dependencies]
+nuro-core = { version = "0.1.0", path = "../nuro-core" }
+nuro-runtime = { version = "0.1.0", path = "../nuro-runtime" }
+nuro-tools = { version = "0.1.0", path = "../nuro-tools" }
+nuro-llm = { version = "0.1.0", path = "../nuro-llm" }
+
+[features]
+default = []
+openai = ["nuro-llm/openai"]

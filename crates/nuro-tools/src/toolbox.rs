@@ -5,7 +5,7 @@ use nuro_core::Tool;
 
 #[derive(Clone, Default)]
 pub struct ToolBox {
-    tools: HashMap<String, Arc<dyn Tool>>,    
+    tools: HashMap<String, Arc<dyn Tool>>,
 }
 
 impl ToolBox {

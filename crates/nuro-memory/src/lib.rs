@@ -11,4 +11,4 @@ mod conversation;
 mod store;
 
 pub use conversation::ConversationMemory;
-pub use store::{MemoryStore, InMemoryMemoryStore};
+pub use store::{InMemoryMemoryStore, MemoryStore};
