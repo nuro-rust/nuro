@@ -4,23 +4,27 @@ use std::marker::PhantomData;
 use std::sync::Arc;
 
 use async_trait::async_trait;
-use nuro_core::{Agent, AgentContext, AgentInput, Result};
+use nuro_core::{
+    Agent, AgentContext, AgentInput, AgentOutput, Result,
+    tool::{Tool, ToolContext, ToolOutput},
+};
+use serde::{Serialize, de::DeserializeOwned};
+use serde_json::Value;
 
-use crate::GraphStateTrait;
+use crate::{CompiledGraph, GraphStateTrait};
 
-/// 节点执行上下文：提供一个简单的、基于字符串 key 的类型安全存取接口，
-/// 方便在节点之间共享少量辅助数据（如 LLM Provider、计数器等）。
 #[derive(Default)]
 pub struct NodeContext {
-    data: HashMap<String, Box<dyn Any + Send + Sync>>,    
+    data: HashMap<String, Box<dyn Any + Send + Sync>>,
 }
 
 impl NodeContext {
     pub fn new() -> Self {
-        Self { data: HashMap::new() }
+        Self {
+            data: HashMap::new(),
+        }
     }
 
-    /// 按 key 存入一个任意类型的值。
     pub fn insert<T>(&mut self, key: impl Into<String>, value: T)
     where
         T: Send + Sync + 'static,
@@ -28,7 +32,6 @@ impl NodeContext {
         self.data.insert(key.into(), Box::new(value));
     }
 
-    /// 按 key 以引用形式取出指定类型的值。
     pub fn get<T>(&self, key: &str) -> Option<&T>
     where
         T: 'static,
@@ -37,7 +40,6 @@ impl NodeContext {
     }
 }
 
-/// 图节点抽象：给定当前状态与上下文，返回一个状态增量。
 #[async_trait]
 pub trait GraphNode<S>: Send + Sync
 where
@@ -46,9 +48,6 @@ where
     async fn run(&self, state: &S, ctx: &mut NodeContext) -> Result<S::Update>;
 }
 
-/// 使用闭包实现的节点适配器。
-///
-/// 闭包为同步函数：方便在 demo 与简单业务中快速定义节点逻辑。
 pub struct FnNode<S, F>
 where
     S: GraphStateTrait,
@@ -64,7 +63,10 @@ where
     F: Fn(&S, &mut NodeContext) -> S::Update + Send + Sync + 'static,
 {
     pub fn new(f: F) -> Self {
-        Self { f, _marker: PhantomData }
+        Self {
+            f,
+            _marker: PhantomData,
+        }
     }
 }
 
@@ -79,11 +81,6 @@ where
     }
 }
 
-/// 使用 `Agent` 适配为图节点的占位实现。
-///
-/// 当前版本中，`AgentNode` 只负责调用底层 Agent，并丢弃结果，返回
-/// `Default::default()` 作为状态增量，以保证编译通过。
-/// 未来版本会扩展为可配置的输入/输出映射逻辑。
 pub struct AgentNode<A, S>
 where
     A: Agent + 'static,
@@ -91,7 +88,8 @@ where
     S::Update: Default,
 {
     agent: Arc<A>,
-    _marker: PhantomData<S>,
+    input_mapper: Arc<dyn Fn(&S, &NodeContext) -> AgentInput + Send + Sync>,
+    update_mapper: Arc<dyn Fn(&S, &AgentOutput, &NodeContext) -> S::Update + Send + Sync>,
 }
 
 impl<A, S> AgentNode<A, S>
@@ -103,8 +101,27 @@ where
     pub fn new(agent: A) -> Self {
         Self {
             agent: Arc::new(agent),
-            _marker: PhantomData,
+            input_mapper: Arc::new(|_state, _ctx| {
+                AgentInput::Text("(graph node input)".to_string())
+            }),
+            update_mapper: Arc::new(|_state, _output, _ctx| S::Update::default()),
         }
+    }
+
+    pub fn with_input_mapper<F>(mut self, mapper: F) -> Self
+    where
+        F: Fn(&S, &NodeContext) -> AgentInput + Send + Sync + 'static,
+    {
+        self.input_mapper = Arc::new(mapper);
+        self
+    }
+
+    pub fn with_update_mapper<F>(mut self, mapper: F) -> Self
+    where
+        F: Fn(&S, &AgentOutput, &NodeContext) -> S::Update + Send + Sync + 'static,
+    {
+        self.update_mapper = Arc::new(mapper);
+        self
     }
 }
 
@@ -115,15 +132,101 @@ where
     S: GraphStateTrait,
     S::Update: Default,
 {
-    async fn run(&self, _state: &S, _ctx: &mut NodeContext) -> Result<S::Update> {
-        // 占位实现：目前不从 Agent 结果构造状态增量，只是走一遍调用，
-        // 以验证协议与类型形状。未来可以在这里接入真正的映射逻辑。
-        let mut ctx = AgentContext::new();
-        let _ = self
-            .agent
-            .invoke(AgentInput::Text("(graph node input)".to_string()), &mut ctx)
-            .await;
+    async fn run(&self, state: &S, ctx: &mut NodeContext) -> Result<S::Update> {
+        let input = (self.input_mapper)(state, ctx);
+        let mut agent_ctx = AgentContext::new();
+        let output = self.agent.invoke(input, &mut agent_ctx).await?;
+        Ok((self.update_mapper)(state, &output, ctx))
+    }
+}
 
-        Ok(S::Update::default())
+pub struct SubGraphNode<S>
+where
+    S: GraphStateTrait,
+{
+    graph: Arc<CompiledGraph<S>>,
+    update_mapper: Arc<dyn Fn(&S, &S) -> S::Update + Send + Sync>,
+}
+
+impl<S> SubGraphNode<S>
+where
+    S: GraphStateTrait,
+{
+    pub fn new(graph: CompiledGraph<S>) -> Self
+    where
+        S::Update: Default,
+    {
+        Self {
+            graph: Arc::new(graph),
+            update_mapper: Arc::new(|_from, _to| S::Update::default()),
+        }
+    }
+
+    pub fn with_update_mapper<F>(mut self, mapper: F) -> Self
+    where
+        F: Fn(&S, &S) -> S::Update + Send + Sync + 'static,
+    {
+        self.update_mapper = Arc::new(mapper);
+        self
+    }
+}
+
+#[async_trait]
+impl<S> GraphNode<S> for SubGraphNode<S>
+where
+    S: GraphStateTrait,
+{
+    async fn run(&self, state: &S, _ctx: &mut NodeContext) -> Result<S::Update> {
+        let next_state = self.graph.invoke(state.clone()).await?;
+        Ok((self.update_mapper)(state, &next_state))
+    }
+}
+
+pub struct GraphTool<S>
+where
+    S: GraphStateTrait,
+{
+    name: String,
+    description: String,
+    graph: Arc<CompiledGraph<S>>,
+}
+
+impl<S> GraphTool<S>
+where
+    S: GraphStateTrait,
+{
+    pub fn new(
+        name: impl Into<String>,
+        description: impl Into<String>,
+        graph: CompiledGraph<S>,
+    ) -> Self {
+        Self {
+            name: name.into(),
+            description: description.into(),
+            graph: Arc::new(graph),
+        }
+    }
+}
+
+#[async_trait]
+impl<S> Tool for GraphTool<S>
+where
+    S: GraphStateTrait + Serialize + DeserializeOwned,
+{
+    fn name(&self) -> &str {
+        &self.name
+    }
+
+    fn description(&self) -> &str {
+        &self.description
+    }
+
+    async fn execute(&self, input: Value, _ctx: &ToolContext) -> Result<ToolOutput> {
+        let state: S = serde_json::from_value(input)
+            .map_err(|e| nuro_core::NuroError::InvalidInput(e.to_string()))?;
+        let output = self.graph.invoke(state).await?;
+        let value = serde_json::to_value(output)
+            .map_err(|e| nuro_core::NuroError::InvalidInput(e.to_string()))?;
+        Ok(ToolOutput::new(value))
     }
 }

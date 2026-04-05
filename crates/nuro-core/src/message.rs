@@ -61,8 +61,7 @@ impl Message {
 
     /// 提取消息中的所有 ToolUse 调用
     pub fn tool_uses(&self) -> Vec<ToolCall> {
-        self
-            .content
+        self.content
             .iter()
             .filter_map(|c| match c {
                 ContentBlock::ToolUse { id, name, input } => Some(ToolCall {
@@ -85,12 +84,23 @@ pub enum Role {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
-#[serde(tag = "type", rename_all = "snake_case")]
+#[serde(tag = "type", content = "value", rename_all = "snake_case")]
 pub enum ContentBlock {
     Text(String),
-    Image { url: String, media_type: String },
-    ToolUse { id: String, name: String, input: Value },
-    ToolResult { tool_use_id: String, content: Value, is_error: bool },
+    Image {
+        url: String,
+        media_type: String,
+    },
+    ToolUse {
+        id: String,
+        name: String,
+        input: Value,
+    },
+    ToolResult {
+        tool_use_id: String,
+        content: Value,
+        is_error: bool,
+    },
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

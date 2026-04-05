@@ -1,11 +1,12 @@
 use std::sync::Arc;
 
+use crate::runtime::{RuntimeExecutable, RuntimeMiddleware};
 use async_trait::async_trait;
 use nuro_core::{
-    message::{ContentBlock, Message},
-    tool::{Tool, ToolContext},
     Agent, AgentContext, AgentInput, AgentOutput, Event, EventKind, LlmProvider, LlmRequest,
     NuroError, Result,
+    message::{ContentBlock, Message},
+    tool::{Tool, ToolContext},
 };
 use nuro_tools::ToolBox;
 use serde_json::Value;
@@ -86,6 +87,7 @@ pub struct AgentLoop {
     system_prompt: Option<String>,
     hooks: Vec<Arc<dyn Hook>>,
     guardrails: Vec<Arc<dyn Guardrail>>,
+    middlewares: Vec<Arc<dyn RuntimeMiddleware<AgentInput, AgentOutput>>>,
 }
 
 impl AgentLoop {
@@ -127,11 +129,13 @@ impl AgentLoop {
 
         // 发送 LLM 请求事件。
         if let Some(tx) = tx.as_ref() {
-            let event = Event {
-                kind: EventKind::LlmRequest {
-                    messages: messages.clone(),
-                },
-            };
+            let event = Event::new(EventKind::LlmRequest {
+                messages: messages.clone(),
+            })
+            .with_session(
+                ctx.session.as_ref().map(|s| s.session_id.clone()),
+                ctx.session.as_ref().and_then(|s| s.run_id.clone()),
+            );
             let _ = tx.send(Ok(event)).await;
         }
 
@@ -168,12 +172,14 @@ impl AgentLoop {
         // ACT & OBSERVE：依次执行工具并把结果追加到消息列表。
         for call in tool_calls {
             if let Some(tx) = tx.as_ref() {
-                let start_event = Event {
-                    kind: EventKind::ToolCallStart {
-                        tool_name: call.name.clone(),
-                        input: call.input.clone(),
-                    },
-                };
+                let start_event = Event::new(EventKind::ToolCallStart {
+                    tool_name: call.name.clone(),
+                    input: call.input.clone(),
+                })
+                .with_session(
+                    ctx.session.as_ref().map(|s| s.session_id.clone()),
+                    ctx.session.as_ref().and_then(|s| s.run_id.clone()),
+                );
                 let _ = tx.send(Ok(start_event)).await;
             }
 
@@ -189,12 +195,14 @@ impl AgentLoop {
                     }
 
                     if let Some(tx) = tx.as_ref() {
-                        let end_event = Event {
-                            kind: EventKind::ToolCallEnd {
-                                tool_name: call.name.clone(),
-                                output: content.clone(),
-                            },
-                        };
+                        let end_event = Event::new(EventKind::ToolCallEnd {
+                            tool_name: call.name.clone(),
+                            output: content.clone(),
+                        })
+                        .with_session(
+                            ctx.session.as_ref().map(|s| s.session_id.clone()),
+                            ctx.session.as_ref().and_then(|s| s.run_id.clone()),
+                        );
                         let _ = tx.send(Ok(end_event)).await;
                     }
 
@@ -216,12 +224,14 @@ impl AgentLoop {
                     }
 
                     if let Some(tx) = tx.as_ref() {
-                        let end_event = Event {
-                            kind: EventKind::ToolCallEnd {
-                                tool_name: call.name.clone(),
-                                output: output.content.clone(),
-                            },
-                        };
+                        let end_event = Event::new(EventKind::ToolCallEnd {
+                            tool_name: call.name.clone(),
+                            output: output.content.clone(),
+                        })
+                        .with_session(
+                            ctx.session.as_ref().map(|s| s.session_id.clone()),
+                            ctx.session.as_ref().and_then(|s| s.run_id.clone()),
+                        );
                         let _ = tx.send(Ok(end_event)).await;
                     }
 
@@ -235,12 +245,14 @@ impl AgentLoop {
                     }
 
                     if let Some(tx) = tx.as_ref() {
-                        let end_event = Event {
-                            kind: EventKind::ToolCallEnd {
-                                tool_name: call.name.clone(),
-                                output: content.clone(),
-                            },
-                        };
+                        let end_event = Event::new(EventKind::ToolCallEnd {
+                            tool_name: call.name.clone(),
+                            output: content.clone(),
+                        })
+                        .with_session(
+                            ctx.session.as_ref().map(|s| s.session_id.clone()),
+                            ctx.session.as_ref().and_then(|s| s.run_id.clone()),
+                        );
                         let _ = tx.send(Ok(end_event)).await;
                     }
 
@@ -273,7 +285,26 @@ impl AgentLoop {
 
     /// 同步执行 AgentLoop，返回完整的 `AgentOutput`。
     pub async fn run(&self, input: AgentInput, ctx: &mut AgentContext) -> Result<AgentOutput> {
-        self.run_inner(input, ctx, None).await
+        for middleware in &self.middlewares {
+            middleware.before_execute(&input, ctx).await?;
+        }
+
+        let result = self.run_inner(input, ctx, None).await;
+
+        match result {
+            Ok(output) => {
+                for middleware in &self.middlewares {
+                    middleware.after_execute(&output, ctx).await?;
+                }
+                Ok(output)
+            }
+            Err(err) => {
+                for middleware in &self.middlewares {
+                    middleware.on_error(&err, ctx).await?;
+                }
+                Err(err)
+            }
+        }
     }
 
     /// 极简版流式接口：
@@ -308,11 +339,9 @@ async fn emit_llm_response_events(tx: &mpsc::Sender<Result<Event>>, message: &Me
     let text = message.text_content().unwrap_or_default();
 
     if text.is_empty() {
-        let event = Event {
-            kind: EventKind::LlmResponse {
-                message: message.clone(),
-            },
-        };
+        let event = Event::new(EventKind::LlmResponse {
+            message: message.clone(),
+        });
         let _ = tx.send(Ok(event)).await;
         return;
     }
@@ -328,9 +357,7 @@ async fn emit_llm_response_events(tx: &mpsc::Sender<Result<Event>>, message: &Me
         let chunk: String = chars[start..end].iter().collect();
 
         let chunk_msg = Message::new(message.role.clone(), vec![ContentBlock::Text(chunk)]);
-        let event = Event {
-            kind: EventKind::LlmResponse { message: chunk_msg },
-        };
+        let event = Event::new(EventKind::LlmResponse { message: chunk_msg });
 
         if tx.send(Ok(event)).await.is_err() {
             break;
@@ -348,6 +375,7 @@ impl Clone for AgentLoop {
             system_prompt: self.system_prompt.clone(),
             hooks: self.hooks.clone(),
             guardrails: self.guardrails.clone(),
+            middlewares: self.middlewares.clone(),
         }
     }
 }
@@ -358,6 +386,7 @@ pub struct AgentLoopBuilder {
     system_prompt: Option<String>,
     hooks: Vec<Arc<dyn Hook>>,
     guardrails: Vec<Arc<dyn Guardrail>>,
+    middlewares: Vec<Arc<dyn RuntimeMiddleware<AgentInput, AgentOutput>>>,
 }
 
 impl AgentLoopBuilder {
@@ -368,6 +397,7 @@ impl AgentLoopBuilder {
             system_prompt: None,
             hooks: Vec::new(),
             guardrails: Vec::new(),
+            middlewares: Vec::new(),
         }
     }
 
@@ -409,6 +439,14 @@ impl AgentLoopBuilder {
         self
     }
 
+    pub fn middleware<M>(mut self, middleware: M) -> Self
+    where
+        M: RuntimeMiddleware<AgentInput, AgentOutput> + 'static,
+    {
+        self.middlewares.push(Arc::new(middleware));
+        self
+    }
+
     pub fn build(self) -> Result<AgentLoop> {
         let llm = self
             .llm
@@ -419,6 +457,7 @@ impl AgentLoopBuilder {
             system_prompt: self.system_prompt,
             hooks: self.hooks,
             guardrails: self.guardrails,
+            middlewares: self.middlewares,
         })
     }
 }
@@ -426,6 +465,16 @@ impl AgentLoopBuilder {
 #[async_trait]
 impl Agent for AgentLoop {
     async fn invoke(&self, input: AgentInput, ctx: &mut AgentContext) -> Result<AgentOutput> {
+        self.run(input, ctx).await
+    }
+}
+
+#[async_trait]
+impl RuntimeExecutable for AgentLoop {
+    type Input = AgentInput;
+    type Output = AgentOutput;
+
+    async fn execute(&self, input: Self::Input, ctx: &mut AgentContext) -> Result<Self::Output> {
         self.run(input, ctx).await
     }
 }

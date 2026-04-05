@@ -11,10 +11,12 @@
 //! 这是一个可用但非常精简的版本，未来可以按设计文档扩展条件边、循环、
 //! 中断/恢复等高级能力。
 
-mod state;
-mod node;
 mod graph;
+mod node;
+mod state;
 
+pub use crate::graph::{
+    Checkpointer, CompiledGraph, InMemoryCheckpointer, SqliteCheckpointer, StateGraph,
+};
+pub use crate::node::{AgentNode, FnNode, GraphNode, GraphTool, NodeContext, SubGraphNode};
 pub use crate::state::GraphStateTrait;
-pub use crate::node::{GraphNode, FnNode, AgentNode, NodeContext};
-pub use crate::graph::{StateGraph, CompiledGraph, Checkpointer, InMemoryCheckpointer};

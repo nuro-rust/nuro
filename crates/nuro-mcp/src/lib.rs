@@ -15,9 +15,9 @@
 //! - 不支持并发流水线请求，所有调用按顺序串行执行；
 //! - 仅实现简化错误与超时处理逻辑。
 
-mod server;
 mod client;
 mod rpc;
+mod server;
 
-pub use server::{McpServer, McpServerBuilder};
 pub use client::McpClient;
+pub use server::{McpServer, McpServerBuilder};

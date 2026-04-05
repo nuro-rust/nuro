@@ -2,6 +2,8 @@ use std::collections::HashMap;
 use std::sync::{Arc, Mutex};
 
 use nuro_core::{NuroError, Result};
+use rusqlite::{Connection, params};
+use serde::{Serialize, de::DeserializeOwned};
 
 use crate::{GraphNode, GraphStateTrait, NodeContext};
 
@@ -47,10 +49,7 @@ where
     }
 
     pub fn get(&self, node_id: &str) -> Option<S> {
-        self.inner
-            .lock()
-            .ok()
-            .and_then(|m| m.get(node_id).cloned())
+        self.inner.lock().ok().and_then(|m| m.get(node_id).cloned())
     }
 }
 
@@ -76,13 +75,87 @@ where
     }
 }
 
+pub struct SqliteCheckpointer<S>
+where
+    S: GraphStateTrait + Serialize + DeserializeOwned,
+{
+    db_path: String,
+    _marker: std::marker::PhantomData<S>,
+}
+
+impl<S> SqliteCheckpointer<S>
+where
+    S: GraphStateTrait + Serialize + DeserializeOwned,
+{
+    pub fn new(db_path: impl Into<String>) -> Result<Self> {
+        let db_path = db_path.into();
+        let conn = Connection::open(&db_path).map_err(|e| NuroError::Storage(e.to_string()))?;
+        conn.execute_batch(
+            "
+            CREATE TABLE IF NOT EXISTS nuro_graph_checkpoints (
+                node_id TEXT PRIMARY KEY,
+                payload TEXT NOT NULL
+            );
+            ",
+        )
+        .map_err(|e| NuroError::Storage(e.to_string()))?;
+
+        Ok(Self {
+            db_path,
+            _marker: std::marker::PhantomData,
+        })
+    }
+
+    fn connect(&self) -> Result<Connection> {
+        Connection::open(&self.db_path).map_err(|e| NuroError::Storage(e.to_string()))
+    }
+}
+
+impl<S> Checkpointer<S> for SqliteCheckpointer<S>
+where
+    S: GraphStateTrait + Serialize + DeserializeOwned,
+{
+    fn save_state(&self, node_id: &str, state: &S) -> Result<()> {
+        let conn = self.connect()?;
+        let payload =
+            serde_json::to_string(state).map_err(|e| NuroError::Storage(e.to_string()))?;
+
+        conn.execute(
+            "INSERT OR REPLACE INTO nuro_graph_checkpoints(node_id, payload) VALUES (?1, ?2)",
+            params![node_id, payload],
+        )
+        .map_err(|e| NuroError::Storage(e.to_string()))?;
+
+        Ok(())
+    }
+
+    fn load_state(&self, node_id: &str) -> Result<Option<S>> {
+        let conn = self.connect()?;
+        let mut stmt = conn
+            .prepare("SELECT payload FROM nuro_graph_checkpoints WHERE node_id = ?1")
+            .map_err(|e| NuroError::Storage(e.to_string()))?;
+
+        let payload = stmt.query_row([node_id], |row| row.get::<_, String>(0));
+
+        match payload {
+            Ok(raw) => {
+                let state = serde_json::from_str::<S>(&raw)
+                    .map_err(|e| NuroError::Storage(e.to_string()))?;
+                Ok(Some(state))
+            }
+            Err(rusqlite::Error::QueryReturnedNoRows) => Ok(None),
+            Err(e) => Err(NuroError::Storage(e.to_string())),
+        }
+    }
+}
+
 /// 构建中的状态图。
 pub struct StateGraph<S>
 where
     S: GraphStateTrait,
 {
     nodes: HashMap<String, Arc<dyn GraphNode<S>>>,
-    edges: HashMap<String, Vec<String>>,             // 普通有向边
+    edges: HashMap<String, Vec<String>>, // 普通有向边
     conditional_edges: HashMap<String, ConditionalEdge<S>>, // 条件边
     entry: Option<String>,
     finish: Option<String>,
@@ -318,17 +391,13 @@ where
     /// - 目前的实现会从加载出的状态重新执行整张图（仍从 entry 开始），
     ///   未来可以扩展为从任意节点继续执行。
     pub async fn resume(&self, node_id: &str) -> Result<S> {
-        let cp = self
-            .checkpointer
-            .as_ref()
-            .ok_or_else(|| NuroError::InvalidInput("cannot resume without a checkpointer".into()))?;
+        let cp = self.checkpointer.as_ref().ok_or_else(|| {
+            NuroError::InvalidInput("cannot resume without a checkpointer".into())
+        })?;
 
-        let state = cp
-            .load_state(node_id)?
-            .ok_or_else(|| NuroError::InvalidInput(format!(
-                "no checkpoint found for node '{}'",
-                node_id
-            )))?;
+        let state = cp.load_state(node_id)?.ok_or_else(|| {
+            NuroError::InvalidInput(format!("no checkpoint found for node '{}'", node_id))
+        })?;
 
         self.invoke(state).await
     }

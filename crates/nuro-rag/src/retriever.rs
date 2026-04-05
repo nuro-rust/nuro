@@ -3,7 +3,7 @@ use std::sync::Arc;
 use async_trait::async_trait;
 use nuro_core::{NuroError, Result, Tool, ToolContext, ToolOutput};
 use serde::Deserialize;
-use serde_json::{json, Value};
+use serde_json::{Value, json};
 
 use crate::VectorStore;
 
@@ -60,9 +60,8 @@ impl Tool for RetrieverTool {
     }
 
     async fn execute(&self, input: Value, _ctx: &ToolContext) -> Result<ToolOutput> {
-        let parsed: RetrieverInput = serde_json::from_value(input).map_err(|e| {
-            NuroError::InvalidInput(format!("invalid retriever input: {e}"))
-        })?;
+        let parsed: RetrieverInput = serde_json::from_value(input)
+            .map_err(|e| NuroError::InvalidInput(format!("invalid retriever input: {e}")))?;
 
         // 未配置存储时，保持原有行为：返回固定提示。
         let Some(store) = &self.store else {

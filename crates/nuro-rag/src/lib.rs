@@ -11,13 +11,13 @@
 //! 目标是保证 API 形状稳定，后续可以在不破坏现有调用的前提下接入真实
 //! 向量库与 embedding 服务。
 
+mod indexer;
 mod retriever;
 mod vector;
-mod indexer;
 
+pub use indexer::DocumentIndexer;
 pub use retriever::RetrieverTool;
 pub use vector::{
-    Embedder, InMemoryVectorStore, NoopEmbedder, NoopVectorStore, VectorStore, VectorEntry,
-    VectorSearchResult,
+    Embedder, InMemoryVectorStore, NoopEmbedder, NoopVectorStore, VectorEntry, VectorSearchResult,
+    VectorStore,
 };
-pub use indexer::DocumentIndexer;

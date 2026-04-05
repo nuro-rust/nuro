@@ -1,4 +1,4 @@
-use crate::{message::Message, Result};
+use crate::{Result, message::Message};
 use async_trait::async_trait;
 
 #[derive(Debug, Clone)]

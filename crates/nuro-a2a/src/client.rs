@@ -1,4 +1,4 @@
-use anyhow::{anyhow, Result};
+use anyhow::{Result, anyhow};
 use reqwest::Client;
 
 use crate::types::{AgentCard, TaskCreateRequest, TaskCreateResponse};
@@ -34,10 +34,7 @@ impl A2aClient {
         let full = format!("{}/.well-known/agent.json", trimmed);
         let resp = Client::new().get(full).send().await?;
         if !resp.status().is_success() {
-            return Err(anyhow!(
-                "failed to discover agent: HTTP {}",
-                resp.status()
-            ));
+            return Err(anyhow!("failed to discover agent: HTTP {}", resp.status()));
         }
         let card = resp.json::<AgentCard>().await?;
         Ok(card)
@@ -52,10 +49,7 @@ impl A2aClient {
         let url = format!("{}/tasks", self.base_url.trim_end_matches('/'));
         let resp = self.http.post(url).json(&req).send().await?;
         if !resp.status().is_success() {
-            return Err(anyhow!(
-                "failed to send task: HTTP {}",
-                resp.status()
-            ));
+            return Err(anyhow!("failed to send task: HTTP {}", resp.status()));
         }
 
         let data: TaskCreateResponse = resp.json().await?;

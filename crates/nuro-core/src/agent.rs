@@ -1,5 +1,6 @@
-use crate::{message::Message, Result};
+use crate::{Result, message::Message};
 use async_trait::async_trait;
+use serde::{Deserialize, Serialize};
 use serde_json::Value;
 use std::collections::HashMap;
 
@@ -44,7 +45,9 @@ impl AgentOutput {
         // 回退：找最近的非错误 ToolResult
         for msg in self.messages.iter().rev() {
             for block in &msg.content {
-                if let crate::message::ContentBlock::ToolResult { content, is_error, .. } = block
+                if let crate::message::ContentBlock::ToolResult {
+                    content, is_error, ..
+                } = block
                 {
                     if !is_error {
                         return Some(content.to_string());
@@ -58,14 +61,50 @@ impl AgentOutput {
 
 #[derive(Debug)]
 pub struct AgentContext {
+    pub session: Option<SessionContext>,
     pub metadata: HashMap<String, Value>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct SessionContext {
+    pub session_id: String,
+    pub run_id: Option<String>,
+    pub resume_token: Option<String>,
+    pub metadata: HashMap<String, Value>,
+}
+
+impl SessionContext {
+    pub fn new(session_id: impl Into<String>) -> Self {
+        Self {
+            session_id: session_id.into(),
+            run_id: None,
+            resume_token: None,
+            metadata: HashMap::new(),
+        }
+    }
+
+    pub fn with_run_id(mut self, run_id: impl Into<String>) -> Self {
+        self.run_id = Some(run_id.into());
+        self
+    }
+
+    pub fn with_resume_token(mut self, token: impl Into<String>) -> Self {
+        self.resume_token = Some(token.into());
+        self
+    }
 }
 
 impl AgentContext {
     pub fn new() -> Self {
         Self {
+            session: None,
             metadata: HashMap::new(),
         }
+    }
+
+    pub fn with_session(mut self, session: SessionContext) -> Self {
+        self.session = Some(session);
+        self
     }
 }
 

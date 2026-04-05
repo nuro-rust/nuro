@@ -19,7 +19,8 @@ nuro-mcp = { version = "0.1.0", path = "../crates/nuro-mcp" }
 nuro-a2a = { version = "0.1.0", path = "../crates/nuro-a2a" }
 nuro-server = { version = "0.1.0", path = "../crates/nuro-server" }
 nuro-macros = { version = "0.1.0", path = "../crates/nuro-macros" }
+nuro-adk = { version = "0.1.0", path = "../crates/nuro-adk" }
 
 [features]
 default = []
-openai = ["nuro-llm/openai"]
+openai = ["nuro-llm/openai", "nuro-adk/openai"]
