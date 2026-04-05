@@ -8,6 +8,9 @@ use nuro::prelude::*;
 /// - 默认监听 `127.0.0.1:3000`（可通过环境变量 `NURO_HTTP_ADDR` 覆盖）；
 /// - 提供接口：
 ///   - `GET /health`
+///   - `GET /metrics`
+///   - `GET /playground`
+///   - `GET /trace`
 ///   - `POST /v1/chat`
 ///   - `POST /v1/chat/stream`（SSE 流式输出）。
 #[tokio::main]
@@ -18,7 +21,9 @@ async fn main() -> Result<()> {
     let addr_str = std::env::var("NURO_HTTP_ADDR").unwrap_or_else(|_| "127.0.0.1:3000".to_string());
     let addr: SocketAddr = addr_str.parse()?;
 
-    println!("Starting nuro HTTP server on http://{}", addr);
+    println!("Starting nuro runtime server on http://{}", addr);
+    println!("Playground: http://{}/playground", addr);
+    println!("Trace viewer: http://{}/trace", addr);
     run_server(addr).await?;
     Ok(())
 }

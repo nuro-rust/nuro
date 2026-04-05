@@ -17,11 +17,16 @@ pub use nuro_mcp::{McpClient, McpServer, McpServerBuilder};
 pub use nuro_memory::{ConversationMemory, InMemoryMemoryStore, MemoryStore};
 pub use nuro_rag::{Embedder, NoopEmbedder, NoopVectorStore, RetrieverTool, VectorStore};
 pub use nuro_runtime::{
-    AgentLoop, CheckpointStore, EventStore, Guardrail, GuardrailDecision, Hook, ReplayEngine,
-    ReplayMode, ReplayResult, RuntimeExecutable, RuntimeMiddleware, SqliteCheckpointStore,
-    SqliteEventStore, TracingMiddleware,
+    AgentLoop, CheckpointStore, EventStore, Guardrail, GuardrailDecision, Hook,
+    PostgresCheckpointStore, PostgresEventStore, ReplayEngine, ReplayMode, ReplayResult,
+    RuntimeExecutable, RuntimeMiddleware, SqliteCheckpointStore, SqliteEventStore,
+    TracingMiddleware,
 };
-pub use nuro_server::{ChatRequest, ChatResponse, run_server};
+pub use nuro_server::{
+    ActionRequest, ChatRequest, ChatResponse, MetricsSnapshot, PolicyAction, PolicyDecision,
+    PolicyEngine, PolicyRule, ReplayResponse, RuntimeServer, RuntimeServerBuilder, RuntimeSession,
+    RuntimeTask, RuntimeTaskRequest, TaskStatus, TaskTarget, TokenUsage, run_server,
+};
 pub use nuro_tools::{CalculatorTool, ToolBox};
 
 /// 统一入口的 prelude，使用者通常只需：
@@ -48,10 +53,16 @@ pub mod prelude {
     pub use nuro_memory::{ConversationMemory, InMemoryMemoryStore, MemoryStore};
     pub use nuro_rag::{Embedder, NoopEmbedder, NoopVectorStore, RetrieverTool, VectorStore};
     pub use nuro_runtime::{
-        AgentLoop, CheckpointStore, EventStore, Guardrail, GuardrailDecision, Hook, ReplayEngine,
-        ReplayMode, ReplayResult, RuntimeExecutable, RuntimeMiddleware, SqliteCheckpointStore,
-        SqliteEventStore, TracingMiddleware,
+        AgentLoop, CheckpointStore, EventStore, Guardrail, GuardrailDecision, Hook,
+        PostgresCheckpointStore, PostgresEventStore, ReplayEngine, ReplayMode, ReplayResult,
+        RuntimeExecutable, RuntimeMiddleware, SqliteCheckpointStore, SqliteEventStore,
+        TracingMiddleware,
     };
-    pub use nuro_server::{ChatRequest, ChatResponse, run_server};
+    pub use nuro_server::{
+        ActionRequest, ChatRequest, ChatResponse, MetricsSnapshot, PolicyAction, PolicyDecision,
+        PolicyEngine, PolicyRule, ReplayResponse, RuntimeServer, RuntimeServerBuilder,
+        RuntimeSession, RuntimeTask, RuntimeTaskRequest, TaskStatus, TaskTarget, TokenUsage,
+        run_server,
+    };
     pub use nuro_tools::{CalculatorTool, ToolBox};
 }

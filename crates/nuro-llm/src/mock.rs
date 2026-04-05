@@ -11,7 +11,7 @@ use crate::provider_adapter::{
 /// - 普通文本输入返回 "Echo: <输入>" 的 Assistant 文本消息
 /// - 如果最后一条用户消息以 "calc:" 开头，则返回一个包含 ToolUse 的消息，
 ///   name 固定为 "calculator"，input = { "expression": "<expr>" }
-pub struct MockLlmProvider;
+pub struct  ;
 
 impl MockLlmProvider {
     pub fn new() -> Self {

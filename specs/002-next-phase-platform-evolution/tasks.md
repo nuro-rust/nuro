@@ -114,7 +114,7 @@
   - Acceptance: 支持 tool-call + streaming 事件对齐到统一 event model
   - Dependency: Event Schema v1
 
-- [ ] **实现 Postgres Store（event/checkpoint）**
+- [X] **实现 Postgres Store（event/checkpoint）**
   - Priority: P1
   - Owner: `@storage-owner`（placeholder）
   - Deliverable: Postgres backend + migration + 测试
@@ -123,14 +123,14 @@
 
 ### Workstream: Runtime Server
 
-- [ ] **增强 Runtime Server：session/task/replay API**
+- [X] **增强 Runtime Server：session/task/replay API**
   - Priority: P1
   - Owner: `@server-owner`（placeholder）
   - Deliverable: API 定义 + 实现 + 示例客户端
   - Acceptance: 可创建会话、执行任务、查询回放状态
   - Dependency: Event/Checkpoint/Replay 能力
 
-- [ ] **补齐 metrics/token accounting/structured logging**
+- [X] **补齐 metrics/token accounting/structured logging**
   - Priority: P1
   - Owner: `@obs-owner`（placeholder）
   - Deliverable: 指标字典、成本统计、结构化日志输出规范
@@ -141,7 +141,7 @@
 
 ### Workstream: Context / Memory / Checkpoint
 
-- [ ] **实现 HITL / approval / interrupt-resume 完整链路**
+- [X] **实现 HITL / approval / interrupt-resume 完整链路**
   - Priority: P2
   - Owner: `@runtime-owner`（placeholder）
   - Deliverable: 状态机模型 + API + 演示流程
@@ -150,7 +150,7 @@
 
 ### Workstream: Observability / Middleware
 
-- [ ] **引入 Policy/Governance 中间件**
+- [X] **引入 Policy/Governance 中间件**
   - Priority: P2
   - Owner: `@policy-owner`（placeholder）
   - Deliverable: policy rule 引擎接口与审计输出
@@ -159,14 +159,14 @@
 
 ### Workstream: DX / Tooling
 
-- [ ] **交付 Trace Viewer（最小版）**
+- [X] **交付 Trace Viewer（最小版）**
   - Priority: P2
   - Owner: `@dx-owner`（placeholder）
   - Deliverable: trace 查询与可视化原型
   - Acceptance: 可按 session 查看 graph/agent/tool 时间线
   - Dependency: Event Store + Replay API
 
-- [ ] **交付 Playground / Evals / Cookbook 套件**
+- [X] **交付 Playground / Evals / Cookbook 套件**
   - Priority: P2
   - Owner: `@dx-owner`（placeholder）
   - Deliverable: playground 原型、评测模板、场景化 cookbook
@@ -175,7 +175,7 @@
 
 ### Workstream: Ecosystem Integrations
 
-- [ ] **增强 MCP / A2A 互操作能力**
+- [X] **增强 MCP / A2A 互操作能力**
   - Priority: P2
   - Owner: `@ecosystem-owner`（placeholder）
   - Deliverable: 互操作协议增强与示例

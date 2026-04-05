@@ -197,7 +197,7 @@ async fn main() -> Result<()> {
 - `crates/nuro-rag/`：RAG 相关组件
 - `crates/nuro-mcp/`：MCP 协议最小实现
 - `crates/nuro-a2a/`：A2A 协议实现
-- `crates/nuro-server/`：最小 HTTP Server 封装
+- `crates/nuro-server/`：Runtime gateway（session/task/replay/approval/metrics/playground）
 - `examples/`：示例工程
 
 ## 文档
@@ -209,6 +209,9 @@ async fn main() -> Result<()> {
 - 分层快速开始：`docs/quickstart-layered.md`
 - ADK 快速开始：`docs/quickstart-adk.md`
 - 示例分层索引：`docs/examples/layer-index.md`
+- Runtime gateway：`docs/runtime-server-gateway.md`
+- Cookbook：`docs/cookbook/runtime-gateway-workflows.md`
+- Evals：`docs/evals/runtime-gateway-regression.md`
 - 进阶用法与 OpenAI：`docs/QUICKSTART-ADVANCED.md`
 
 ## OpenAI 支持
